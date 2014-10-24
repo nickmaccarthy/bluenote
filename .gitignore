@@ -1,0 +1,7 @@
+
+*.pyc
+*.json
+*.txt
+
+etc/conf/*.py
+var/log*

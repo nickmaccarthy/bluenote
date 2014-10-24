@@ -1,0 +1,25 @@
+alerts = [
+    {
+        'name': 'MySQLd Replication Lag',
+        'description': 'Replication lag (in seconds) that is occuring on a slave.  This should be looked into ASAP',
+        'severity': 'High',
+        'query': "index=logstash* _type=mysql_slave_status | date_histogram avg:Seconds_Behind_Master by host interval=30s",
+        'disabled': 0,
+        'enable_sched': 1,
+        'schedule_interval': '30s',
+        'earliest_time': '-1m',
+        'latest_time': 'now',
+        'alert': {
+            'counttype': 'Seconds_Behind_Master',
+            'relation': 'ge',
+            'qty': 5,
+            'threshold': '4h',
+            'action': {
+                'email': 1,
+                'email_to': 'nmaccarthy@shapeup.com',
+            }
+            
+        }
+    },
+
+]

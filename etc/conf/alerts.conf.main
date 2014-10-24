@@ -1,0 +1,27 @@
+[system_load]
+disabled = 0
+enable_schedule = 0
+schedule = */30 * * * *
+type = system_stats
+range = -1m - now
+aggs.1.name = events_by_host
+aggs.1.terms.field = host.raw
+aggs.2.name = events_by_date
+aggs.2.date_histogram.field = @timestamp
+aggs.2.date_histogram.interval = hour
+aggs.3.name = avg_system_load
+aggs.3.avg.field = current_load
+
+[site_rpm]
+disabled = 0
+enable_schedule = 0
+schedule = */30 * * * *
+type = system_stats
+range = -1m - now
+aggs.1.name = events_by_host
+aggs.1.terms.field = host.raw
+aggs.2.name = events_by_date
+aggs.2.date_histogram.field = @timestamp
+aggs.2.date_histogram.interval = hour
+aggs.3.name = avg_site_rpm
+aggs.3.avg.field = rpm

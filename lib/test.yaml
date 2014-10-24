@@ -1,0 +1,38 @@
+---
+    alert_name:   system_load
+    disabled: 0
+    enabled_sched: 1
+    schedule_interval: "30s"
+    _type: system_stats
+    es_query: ""
+    earliest_time: "-1m"
+    alert:
+        counttype: "number of events" 
+        qty: "1.5"
+        relation: "greater than"
+        action:
+            email: 1
+            email_to: "nmaccarthy@shapeup.com"
+            script:
+                enable: 1
+                filename: "/some/path.py"           
+    aggs:
+        - name: events_by_host
+          terms:
+            - field: host.raw
+        - name: events_by_date
+          date_histogram:
+             field: __timestamp
+             interval: hour
+---
+    alert_name: alert_number2 
+    disabled: 0
+    aggs:
+        - name: events_by_host
+          terms:
+            - field: host.raw
+        - name: events_by_date
+          date_histogram:
+             field: __timestamp
+             interval: hour
+---
