@@ -42,13 +42,13 @@ for alert in alerts:
     should_alert = False
     if alert.get('disabled') == 1: continue
 
-    #nag_threshold = bluenote.relative_time_to_seconds( bluenote._get(alert, 0, 'alert', 'threshold') )
+    nag_threshold = bluenote.relative_time_to_seconds( bluenote._get(alert, 0, 'alert', 'threshold') )
 
-    #if bluenote.alert.last_run(es, alert['name']) > 0:
-    #    time_since = ( bluenote.get_current_time_local() - bluenote.alert.last_run(es, alert['name']))
-    #    if time_since <= nag_threshold: 
-    #        # No need to go any further, we havent hit our threshold yet
-    #        continue
+    if bluenote.alert.last_run(es, alert['name']) > 0:
+        time_since = ( bluenote.get_current_time_local() - bluenote.alert.last_run(es, alert['name']))
+        if time_since <= nag_threshold: 
+            # No need to go any further, we havent hit our threshold yet
+            continue
 
     try:
         res = s.query(alert['query'], _from=alert.get('earliest_time', '-1m'), _to=alert.get('latest_time', 'now'))
