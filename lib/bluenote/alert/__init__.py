@@ -35,7 +35,7 @@ def make_email_body(results, ainfo):
     eb.append("<strong>Alert Name:</strong> %s <br />" % ainfo.get('name', ''))
     eb.append("<strong>Description:</strong> %s <br />" % ainfo.get('description', ''))
     eb.append("<strong>Query:</strong> %s <br />" % ainfo.get('query', ''))
-    eb.append("<strong>Tigger Reason:</strong> Because <strong>%s</strong> was <strong>%s</strong> to <strong>%s</strong> <br />" % (ainfo['alert']['counttype'], ainfo['alert']['relation'].upper(), ainfo['alert']['qty']))
+    eb.append("<strong>Trigger Reason:</strong> Because <strong>%s</strong> was <strong>%s</strong> to <strong>%s</strong> <br />" % (ainfo['alert']['counttype'], ainfo['alert']['relation'].upper(), ainfo['alert']['qty']))
     eb.append("<strong>Times:</strong> <b>Start:</b> %s <b>End:</b> %s <br />" % (results['query_intentions']['times']['start_iso'], results['query_intentions']['times']['end_iso']))
     eb.append("</p>")
 
