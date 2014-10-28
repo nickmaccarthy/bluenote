@@ -1,8 +1,8 @@
 .DS_*
 *.pyc
 *.json
+*.yaml
 *.txt
 *.sw*
 
 etc/conf/*.py
-var/log*
