@@ -1,8 +1,8 @@
-
+.DS_*
 *.pyc
 *.json
 *.txt
-*.sw*
+*.swp
 
 etc/conf/*.py
 var/log*
