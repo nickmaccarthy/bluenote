@@ -2,6 +2,7 @@
 *.pyc
 *.json
 *.txt
+*.swp
 
 etc/conf/*.py
 var/log*
