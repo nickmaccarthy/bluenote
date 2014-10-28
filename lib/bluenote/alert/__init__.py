@@ -20,7 +20,6 @@ from bn_mail import mailcfg
 
 from pprint import pprint
 
-#from flask import render_template 
 import requests
 
 logger = bluenote.get_logger('alert')
