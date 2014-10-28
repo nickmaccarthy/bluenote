@@ -1,0 +1,256 @@
+{% extends "main.html" %}
+
+{% set hostlocked = host.locked if current_user.username != host.locked_by %}
+
+{% block right_sidebar %}
+
+<script>
+
+    function get_branches(remote) {
+        $.getJSON("/branches/for/"+remote, function(branches){
+            var options = '<option value="choose_branch">Choose Branch</option>';
+            $.each(branches, function(i, branch) {
+                options += '<option value="'+branch.name+'">'+branch.name+' -- '+branch.hash+'</option>';
+            });
+            $("#branches").html(options);
+            $("#choose_branch").show();
+
+        });
+    }
+
+    $(document).ready(function(){
+        if($('#locked').is(':checked'))
+            $('#locked-reason-div').show();
+
+        $('#locked').click(function(e){
+            console.log('its clicked');
+            if($('#locked').is(':checked'))
+                $('#locked-reason-div').show();
+            else
+                $('#locked-reason-div').hide();
+        });
+        
+        (function(){
+            $.getJSON("/remotes/available", function(remotes){
+                var options = '<option value="choose_remote">Choose Remote</option>';
+                $.each(remotes, function(i, remote) {
+                    options += '<option value="'+remote.name+'">'+remote.name+'</option>';
+                });
+                $("#choose_remote").html(options);
+            });
+
+        })();
+
+        $('#log-table').dataTable( {
+            "ajax": {
+                "url": "/getlogs/forhost/{{host.name}}"   
+            },
+            "order": [[0, "desc"]],
+            "columns": [
+                { "data": "time",
+                    "mRender": function(data){
+                        return "<pre>"+data+"</pre>";
+                    }
+                },
+                { "data": "level",
+                    "mRender": function( data ){
+                        if ( data == "Success" )
+                            return "<p class='alert alert-success'>"+data+"</p>";
+                        else if ( data == "Error" )
+                            return "<p class='alert alert-danger'>"+data+"</p>";
+                        else
+                            return "<p class='text-muted'>"+data+"</p>";
+                    }
+                },
+                { "data": "type" },
+                { "data": "branch" },
+                { "data": "user",
+                    "mRender": function(data){
+                        if ( data == "None" )
+                            return "<p class='text-muted'>"+data+"</p>"
+                        else
+                            return "<code>"+data+"</code>";
+                    }
+                
+                },
+                { "data": "hash",
+                    "mRender": function(data){
+                        if ( data == "None" )
+                            return "<p class='text-muted'>"+data+"</p>"
+                        else
+                            return "<code>"+data+"</code>";
+                    }
+                },
+                { "data": "message",
+                    "mRender": function( data, type, full ){
+                        if ( data == "None" )
+                            return "<p class='text-muted'>"+data+"</pre>";
+                        else
+                            return "<pre>"+data+"</pre>";
+                    }
+                },
+                { "data": "error",
+                    "mRender": function(data){
+
+                        if ( data == "None" )
+                            return "<p class='text-muted'>"+data+"</pre>";
+                        else
+                            return "<div class='alert alert-danger'><pre>"+data+"</pre></div>";
+                    }
+                },
+                { "data": "log_from" }
+            ]
+        });
+
+        $("#choose_remote").change( function(){
+            get_branches( $(this).val() );
+        });
+
+
+    });
+</script>
+
+
+<div class="row">
+
+    <div class="col-xs-12 col-md-12">
+        <ol class="breadcrumb">
+            <li><a href="/hosts">Hosts</a></li>
+            <li class="active">Edit Host</li>
+        </ol>
+    </div>
+
+    <div class="col-xs-12 col-md-12">
+        <div class="page-header">
+            <h3>{{host.name}}{% if hostlocked %}    <i class="fa fa-lock"></i>{% endif %}</h3>
+        </div>
+    </div>
+
+    {% if hostlocked %}
+        <div class="col-xs-12 col-md-12">
+            <div class="alert alert-warning">
+                <div class="row">
+                    <div class="col-sm-1">
+                        <h3><i class="fa fa-lock"></i></h3>
+                    </div>
+                    <div class="col-sm-6">
+                        <p>This host is currently locked by <strong>{{host.locked_by}}</strong></p>
+                        <p class="help">To work with this host, please ask the user to unlock it, or contact an administrator</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% endif %}
+
+    <div class="col-xs-4 col-md-4">
+        <div class="panel panel-default">
+            <div class="panel-heading">Host Info</div>
+            <dl class="dl-horizontal">
+                <dt>Status:</dt> <dd>{{host.status}}</dd>
+                <dt>Hostname:</dt> <dd>{{host.hostname}}</dd>
+                <dt>Public IP:</dt> <dd>{{host.IP}}</dd>
+                <dt>Private IP:</dt> <dd>{{host.priIP}}</dd>
+                <dt>Current Branch:</dt> <dd>{{host.version}}</dd>
+                <dt>Current Hash:</dt> <dd>{{host.hash}}</dd>
+                <dt>Checked Out By:</dt> <dd>{{host.checked_out_by}}</dd>
+                {% if host.locked == 1 %}
+                <dt>Locked:</dt> <dd>Yes</dd>
+                <dt>Locked By:</dt> <dd>{{host.locked_by}}</dd>
+                <dt>Locked Reason:</dt> <dd>{{host.locked_reason}}</dd>
+                {% endif %}
+                <dt>Last Modified:</dt> <dd>{{host.modified}}</dd>
+            </dl>
+
+        </div>
+    </div>
+
+    <div class="col-xs-8 col-md-8">
+        <div class="page-header">
+            </h2>Checkout Branch</h2>
+        </div>
+
+        <form role="form" action="{{ url_for('edit_host') }}" method="POST">
+           <!-- Choose remote branch -->
+           <div class="form-group">
+                <label for="remote-chosen" class="control-label">Choose by Remote / Branch</label>
+                <select name="remote-chosen" class="form-control" id="choose_remote" {% if hostlocked %} disabled {% endif %}></select>
+           </div> 
+           <! -- Choose branch after remote has been chosen, taken care of via javscript -->
+           <div class="form-group" id="choose_branch" style="display: none;" {% if hostlocked %} disabled {% endif %}>
+                <label for="branch=chosen" class="control-label">Remote</label>
+                <select name="branch-chosen" class="form-control" {% if hostlocked %} disabled {% endif %} id="branches"></select>
+            </div>
+
+        <hr />
+
+            <!-- Manual branch checkout -->
+            <div class="form-group">
+                <label for="branch" class="control-label">Or checkout branch manually</label>
+                <input id="branch" name="branch-manual" type="text" class="form-control" placeholder="{{host.version}}" {% if hostlocked %} disabled {% endif %}>
+            </div>
+
+            <! -- Locking section -->
+            <div class="form-group">
+                <label>
+                    <input type="checkbox" id="locked" name="locked" {% if host.locked == 1 %} checked="checked" {% endif %} {% if hostlocked %} checked disabled {% endif %}> Locked 
+                </label>
+                <p class="help">Prevents others from being able to checkout a branch on this host.</p> 
+
+                <div id="locked-reason-div" style="display: none">
+                    {% if hostlocked %}
+                        <p><strong>Reason host is locked</strong></p>
+                        <pre><strong>{{host.locked_by}}</strong> : {{host.locked_reason}}</pre>
+                    {% else %}
+                        <p class="muted">Enter a reason for locking this host</p>
+                        <textarea id="locked-reason" name="locked-reason" type="text" class="form-control" rows="3" placeholder="{{host.locked_reason}}" {% if hostlocked %} disabled {% endif %}></textarea>
+                    {% endif %}
+                </div>
+            </div>
+
+            <input type="hidden" name="host" value="{{host.name}}">
+
+            <button type="submit" class="btn btn-default" {% if hostlocked %} checked disabled {% endif %}>Submit</button>
+        </form>
+    </div>
+
+
+</div>
+
+<div class="row">
+    <div class="col-xs-12 col-md-12">
+        <div class="page-header"><h4>Logs</h4></div>
+    </div>
+
+    <div class="col-xs-12 col-md-12">
+            <table id="log-table" class="table table-striped table-hover" cellspacing="0" width="100%">
+                <thead>
+                    <tr>
+                        <th>Time</th>
+                        <th>Level</th>
+                        <th>Type</th>
+                        <th>Branch</th>
+                        <th>User</th>
+                        <th>Hash</th>
+                        <th>Message</th>
+                        <th>Error</th>
+                        <th>From Source</th>
+                    </tr>
+                </thead>
+                <tfoot>
+                    <tr>
+                        <th>Time</th>
+                        <th>Level</th>
+                        <th>Type</th>
+                        <th>Branch</th>
+                        <th>User</th>
+                        <th>Hash</th>
+                        <th>Message</th>
+                        <th>Error</th>
+                        <th>From Source</th>
+                    </tr>
+                </tfoot>
+            </table>
+    </div>
+
+</div>
+{% endblock %}

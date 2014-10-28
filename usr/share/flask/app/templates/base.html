@@ -1,0 +1,44 @@
+{% include "flashes.html" %}
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="">
+    <meta name="author" content="">
+
+    <title>QA Manager</title>
+
+    <!-- Bootstrap core CSS -->
+    <link href="/static/css/bootstrap.css" rel="stylesheet">
+    <!-- Custom styles for this template -->
+    <link href="/static/css/dashboard.css" rel="stylesheet">
+    <!-- FontAwesome -->
+    <!-- <link href="/static/css/font-awesome.css" rel="stylesheet"> -->
+    <link href="//maxcdn.bootstrapcdn.com/font-awesome/4.1.0/css/font-awesome.min.css" rel="stylesheet">
+    <!-- Our Custom CSS -->
+    <link href="/static/css/style.css" rel="stylesheet">
+    <!-- Boostrap datatables -->
+    <link href="/static/css/dataTables.bootstrap.css" rel="stylesheet">
+
+
+    <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script>
+    <script type="text/javascript" src="/static/js/bootstrap.min.js"></script>
+    <script type="text/javascript" src="/static/js/custom.js"></script>
+    <!-- DataTables -->
+    <script type="text/javascript" src="/static/js/jquery.dataTables.js"></script>
+    <!--<script type="text/javascript" src="//cdn.datatables.net/plug-ins/28e7751dbec/integration/bootstrap/3/dataTables.bootstrap.js"></script>-->
+    <script type="text/javascript" src="/static/js/jquery.timeago.js"></script>
+
+
+  </head>
+
+  <body>
+
+    {% block flashes %}{% endblock %}
+    {% block content %}{% endblock %}
+
+
+  </body>
+</html>
+

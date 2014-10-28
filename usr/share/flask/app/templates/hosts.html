@@ -1,0 +1,119 @@
+{% extends "main.html" %}
+
+{% block right_sidebar %}
+
+<script>
+    $(document).ready(function() {
+        (function () {
+
+            poll_host_states = function() {
+                $.getJSON("/hosts/status", function(hosts){
+                    $.each(hosts, function(i, host) {
+
+                        $("#server-status-"+host.name+" .host-status").html(host.status);
+
+                        if(host.status == "Pending")
+                        {
+
+                            $("#pull-icon-"+host.name).hide();
+                            $("#server-status-"+host.name+" div.server-active").fadeOut('fast').hide();
+                            $("#server-status-"+host.name+" div.server-error").fadeOut('fast').hide();
+                            $("#server-status-"+host.name+" div.server-pending").fadeIn('fast');
+
+                        }
+                        else if( host.status == "Active")
+                        {
+                            $("#pull-icon-"+host.name).show();
+
+
+                            $("#host-hash-"+host.name+" .txt").text(host.hash);
+
+                            $("#host-version-header-"+host.name).text(host.version);
+                            $("#host-version-"+host.name+" .txt").text(host.version);
+
+                            $("#host-modified-"+host.name+" .timeago").attr('title', host.modified+"CST");
+                            $("#host-checked-out-by-"+host.name+" .txt").text(host.checked_out_by);
+
+                            $("#server-status-"+host.name+" div.server-pending").fadeOut('fast').hide();
+                            $("#server-status-"+host.name+" div.server-error").fadeOut('fast').hide();
+                            $("#server-status-"+host.name+" div.server-active").fadeIn('fast');
+
+                        }
+                        else if( host.status == "Error")
+                        {
+                            $("#server-status-"+host.name+" div.server-pending").fadeOut('fast');
+                            $("#server-status-"+host.name+" div.server-active").fadeOut('fast');
+                            $("#server-status-"+host.name+" div.server-error").fadeIn('fast');
+                        }
+                        else
+                        {
+                            //$("#server-status-"+host.name+" i").hide();
+                        }
+
+                    });  
+                });
+            },
+
+            pollInterval = setInterval(function() {
+                poll_host_states();
+            }, 10000);
+
+            poll_host_states();
+
+        })();
+
+
+        $('.git-pull').click(function(){
+            var host = $(this).attr("host-id");
+            console.log(host)
+            $.post("/git/pull", { hostid: host });
+        });
+    });
+
+    function git_pull(host){
+        $.post("/git/pull", { hostid: host });
+    }
+
+</script>
+
+<div id="content" style="background: #ebebeb">
+    {% for host in qa_hosts %}
+        <div class="col-xs-12 col-sm-6 col-md-4 ow-server">
+                <div class="page-header text-right">
+                    <h4>
+                        <span id="host-version-header-{{host.name}}" class="text-muted">{{host.version}}</span> - {{ host.name }}
+                        {% if host.locked == 1 %}
+                            <i class="fa fa-lock" rel="tooltip" data-toggle="tooltip" data-placement="top" title="Locked by {{host.locked_by}}"></i>
+                        {% endif %}
+                    </h4>
+                    <div class="ow-settings">
+                        <a title="Edit Host {{host.name}}" class="ajax-link" href="/hosts/edit/{{ host.name }}"><i class="fa fa-lg fa-fw fa-md fa-gears"></i></a>
+                        <a title="Git Pull" id="pull-icon-{{host.name}}" href="/git/pull/{{host.name}}"><i class="fa fa-lg fa-fw fa-arrow-circle-down"></i></a>
+                        <a title="Restart Apache" class="ajax-link" href="/services/restart_apache/{{host.name}}"><i class="fa fa-lg fa-fw fa-retweet"></i></a>
+                    </div>
+                </div>
+                <div class="row ow-server-bottom">
+                    <div class="col-sm-4">
+                        <div id="server-status-{{host.name}}" class="server-status">
+                            <div class="host-status">{{ host.status }}</div>
+                            <div class="server-error" style="display: none;"><i class="alert alert-danger fa fa-2x fa-exclamation"></i></div>
+                            <div class="server-active" style="display: none;"><i class="alert alert-success fa fa-2x fa-check-circle"></i></div>
+                            <div class="server-pending" style="display: none;"><div class="alert alert-info"><i class="fa fa-2x fa-refresh fa-spin"></i></div></div>
+                        </div>
+                    </div>
+                    <div class="col-sm-8">
+                        <div class="row"> {{ host.hostname }}</div>
+                        <div class="row"><i class="fa fa-sitemap"></i> {{ host.IP }}</div>
+                        <div class="row" id="host-version-{{host.name}}">
+                            <i class="fa fa-github"></i> <span class="txt">{{ host.version }} </span> 
+                        </div>
+                        <div class="row" id="host-hash-{{host.name}}"><i class="fa fa-building-o"></i> <code> <span class='txt'>{{ host.hash }} </span></code></div>
+                        <div class="row" id="host-checked-out-by-{{host.name}}"><i class="fa fa-user"></i> <span class='txt'>{{host.checked_out_by}}</span></div>
+                        <div class="row" id="host-modified-{{host.name}}"><i class="fa fa-clock-o"></i> <abbr class="timeago" title="{{host.modified}}"></abbr></div>
+                    </div>
+                </div>
+        </div>
+    {% endfor %}
+</div>
+
+{% endblock %}

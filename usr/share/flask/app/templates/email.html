@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+
+{% block content %}
+        <div class="col-sm-12 col-md-12 main">
+            <p>
+                <strong>Severity:</strong> {{ ainfo.severity }} <br />
+                <strong>Alert Name:</strong> {{ainfo.name}}  <br />
+                <strong>Description:</strong> {{ainfo.description}} <br />
+                <strong>Query:</strong> {{ainfo.query}} <br />
+                <strong>Trigger Reason:</strong> Because <strong>{{ainfo['alert']['counttype']}}</strong> was <strong>{% filter upper %}{{ainfo['alert']['relation']}}{% endfilter %}</strong> to <strong>{{ainfo['alert']['qty']}}</strong> <br />
+                <strong>Times:</strong> <b>Start:</b> {{results['query_intentions']['times']['start_iso']}} <b>End:</b> {{results['query_intentions']['times']['end_iso']}} <br />
+            </p>
+            <p>
+                <strong>Results:</strong>
+                {{ results_table|safe }}
+            <p>
+        </div>
+{% endblock %} 
+

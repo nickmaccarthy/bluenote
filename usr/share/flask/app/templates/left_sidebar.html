@@ -1,0 +1,15 @@
+{% macro render_sitem(endpoint, display, active='') %}
+<li {% if request.endpoint == endpoint or active == endpoint %} class='active' {% endif %}>
+    <a href="{{url_for(endpoint)}}">{{display}}</a>
+</li>
+{% endmacro %}
+
+{% block left_sidebar %}
+    <div class="container-fluid">
+      <div class="row">
+        <div class="col-sm-3 col-md-2 sidebar">
+          <ul class="nav nav-sidebar">
+            {{ render_sitem("hosts", "Overview", active=active_page) }} 
+          </ul>
+        </div>
+{% endblock %}
