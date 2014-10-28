@@ -26,36 +26,17 @@ import requests
 logger = bluenote.get_logger('alert')
 
 def make_email_body(results, ainfo):
-    eb = []
-    #eb.append("<html>")
-
-    #eb.append("<head>")
-    #eb.append("</head>")
-
-   # eb.append("<body>")
-    eb.append("<p>")
-    eb.append("<strong>Severity:</strong> %s <br />" % ainfo.get('severity', ''))
-    eb.append("<strong>Alert Name:</strong> %s <br />" % ainfo.get('name', ''))
-    eb.append("<strong>Description:</strong> %s <br />" % ainfo.get('description', ''))
-    eb.append("<strong>Query:</strong> %s <br />" % ainfo.get('query', ''))
-    eb.append("<strong>Trigger Reason:</strong> Because <strong>%s</strong> was <strong>%s</strong> to <strong>%s</strong> <br />" % (ainfo['alert']['counttype'], ainfo['alert']['relation'].upper(), ainfo['alert']['qty']))
-    eb.append("<strong>Times:</strong> <b>Start:</b> %s <b>End:</b> %s <br />" % (results['query_intentions']['times']['start_iso'], results['query_intentions']['times']['end_iso']))
-    eb.append("</p>")
-
-    eb.append("<strong> Results: </strong>")
-    #eb.append(bluenote.dict_to_html_table(results.get('_results', '')))
-    #eb.append("</body>")
-    #eb.append("</html>")  
-
     try:
-        email_body = requests.post('http://localhost:5000/render/email', data={'ainfo': json.dumps(ainfo), 'results': json.dumps(results), 'results_table': bluenote.dict_to_html_table(results.get('_results', '')) }).text
-        print email_body
+        email_body = requests.post('http://localhost:5000/render/email', data={
+                                                                            'ainfo': json.dumps(ainfo), 
+                                                                            'results': json.dumps(results), 
+                                                                            'results_table': bluenote.dict_to_html_table(results.get('_results', '')) 
+                                                                        }
+                                    ).text
         return email_body
     except Exception, e:
         log_msg = "Unable to make request to render email template: %s" % e
-        print log_msg
         logger.exception(log_msg)
-    #return ''.join(eb)
 
 def find_in_alerts(search_id):
     for al in alerts:
@@ -64,11 +45,9 @@ def find_in_alerts(search_id):
 
 def email(to, results, alert_name, **kwargs):
 
-    print type(to)
     if not isinstance(to, list):
         to = [to]
     
-    print type(to)
     ainfo = find_in_alerts(alert_name)
 
     sender = kwargs.get('sender', mailcfg['default_sender'])
