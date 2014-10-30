@@ -34,9 +34,11 @@ except Exception, e:
     sys.exit()
 
 s = Search()
-logger = bluenote.get_logger('search-test')
+logger = bluenote.get_logger('bnd')
 
 es.indices.create(index='bluenote-int', ignore=400)
+
+logger.info("bluenoted has started")
 
 for alert in alerts:
     should_alert = False
@@ -92,3 +94,4 @@ for alert in alerts:
                 #elif alert['alert']['action'].has_key('pymod'):
                 #    print bluenote.run_
 
+logger.info("bluenoted has ended")
