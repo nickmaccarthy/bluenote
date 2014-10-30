@@ -82,7 +82,7 @@ for alert in alerts:
             email_it = bluenote.alert.email( alert['alert']['action']['email_to'], alert_results, alert['name'], subject=email_subject ) 
             email_it = True
             if email_it:
-                print "Alerting Brosef"
+                #print "Alerting Brosef"
                 logger.info("""msg="%s", email_to="%s", name="%s", subject="%s" """ % ( "Email Sent", alert['alert']['action']['email_to'], alert['name'], email_subject ))
                 es.index(index='bluenote-int', doc_type='alert_trigger', id=alert['name'], body={'alert-name': alert['name'], 'time': bluenote.get_current_utc(), 'results': alerts})
 
