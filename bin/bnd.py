@@ -4,6 +4,9 @@ import os
 import re
 import datetime
 import time
+import signal
+import Queue
+import threading
 
 from pprint import pprint
 
@@ -40,9 +43,13 @@ es.indices.create(index='bluenote-int', ignore=400)
 
 logger.info("bluenoted has started")
 
-for alert in alerts:
+q = Queue.Queue()
+
+def worker(q, alert):
     should_alert = False
-    if alert.get('disabled') == 1: continue
+    if alert.get('disabled') == 1: 
+        q.task_done()
+        return
 
     nag_threshold = bluenote.relative_time_to_seconds( bluenote._get(alert, 0, 'alert', 'threshold') )
 
@@ -50,13 +57,16 @@ for alert in alerts:
         time_since = ( bluenote.get_current_time_local() - bluenote.alert.last_run(es, alert['name']))
         if time_since <= nag_threshold: 
             # No need to go any further, we havent hit our threshold yet
-            continue
+            q.task_done()
+            return
 
     try:
         res = s.query(alert['query'], _from=alert.get('earliest_time', '-1m'), _to=alert.get('latest_time', 'now'))
     except Exception, e:
         print "Unable to query: %s" % e
-        continue
+        logger.exception("Unable to query: %s" % (e))
+        q.task_done()
+        return
 
     ## For aggregated results
     if res['intentions']['qd'].has_key('agg_type'):
@@ -94,4 +104,20 @@ for alert in alerts:
                 #elif alert['alert']['action'].has_key('pymod'):
                 #    print bluenote.run_
 
-logger.info("bluenoted has ended")
+    q.task_done()
+
+def main():
+    for alert in alerts:
+        t = threading.Thread(target=worker, args=(q, alert))
+        t.daemon = True
+        t.start()
+
+    for alert in alerts:
+        q.put(alert)
+
+    s = q.get()
+
+
+if __name__ == "__main__":
+    main()
+    logger.info("bluenoted has ended")
