@@ -18,6 +18,8 @@ import collections
 import subprocess
 import json
 
+from pprint import pprint 
+
 ''' returns a unix timestamp of the current time in UTC '''
 def get_current_utc():
     return calendar.timegm(datetime.datetime.utcnow().utctimetuple())
@@ -72,7 +74,7 @@ def dict_to_html_table(ourl):
     for h in headers:
         table.append("<th>%s</th>" % h)
     table.append("</tr>")
-    table.append("<thead>")
+    table.append("</thead>")
 
     table.append("<tbody>")
     tblst = []
@@ -85,6 +87,34 @@ def dict_to_html_table(ourl):
     table.append("</table>")
 
     return ''.join(table)
+
+
+def datatable(ourl):
+    theaders = ourl['_results'][0].keys()
+
+    table = []
+    table.append('<table id="datatable" class="table table-striped table-bordered table-hover dataTable no-footer">')
+    table.append('<thead>')
+    table.append('<tr>')
+    for h in theaders:
+        table.append("<th>%s</th>" % h)
+    table.append("</tr>")
+    table.append("</thead>")
+
+    table.append("<tbody>")
+    tblst = []
+    for l in ourl['_results']:
+        print "L: %s" % l
+        table.append("<tr>")
+        for h in theaders:
+            table.append("<td> %s </td>" % (str(l[h])))
+        table.append("</tr>")
+    table.append("</tbody>")
+    table.append("</table>")
+
+    
+    htmltable =  ''.join(table)
+    return { 'query_intentions': ourl.get('query_intentions'), 'theaders': theaders, 'html': htmltable}    
 
 ''' returns a logger instance
 
@@ -214,4 +244,5 @@ def get_apps(PATH):
 @autocast
 def castem(e):
     return e
+
 
