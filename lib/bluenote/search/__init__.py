@@ -13,11 +13,13 @@ import json
 
 from bn import bncfg
 
+logger = bluenote.get_logger('bluenote.search.Search')
+
 class Search(object):
 
 
     def __init__(self):
-       self.es = Elasticsearch(bncfg['esh_server'])
+       self.es = Elasticsearch(bncfg['esh_server'], timeout=1)
        self.set_indexes() 
 
 
@@ -53,11 +55,13 @@ class Search(object):
         try:
             returnd['_results'] = self.es.search(
                                     index=search_indexes, 
-                                    #q=lucene_query, 
-                                    body=qobj.queryd['es_query']
+                                    body=qobj.queryd['es_query'],
+                                    timeout="10"
                                 )
         except Exception, e:
-            print "Unable to run query: %s" % e
+            #print "Unable to run query from search module: %s" % e
+            logger.exception('Unable to run query from search module: %s' % (e))
+            raise 
 
         return returnd
 
