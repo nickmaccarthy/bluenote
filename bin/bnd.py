@@ -30,13 +30,15 @@ from bn import bncfg
 from bn_mail import mailcfg
 
 try:
-    es = Elasticsearch(bncfg['esh_server'])
+    es = Elasticsearch(bncfg['esh_server'], timeout=0.1)
 except Exception, e:
     logger.exception("Unable to connect to ES server! Reason: %s" % (e))
     sys.exit()
 
 s = Search()
 logger = bluenote.get_logger('bnd')
+#eslogger = bluenote.get_logger('elasticsearch')
+#estracelogger = bluenote.get_logger('elasticsearch.trace')
 
 es.indices.create(index='bluenote-int', ignore=400)
 
@@ -56,6 +58,7 @@ def main():
         t = threading.Thread(target=worker, args=(q, alert))
         #t.daemon = True
         t.start()
+        logger.info('starting search for %s' % (alert['name']))
     q.join()        
 
 
