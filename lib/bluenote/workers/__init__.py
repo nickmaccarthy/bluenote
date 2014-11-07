@@ -26,8 +26,10 @@ def bnd(es, alert):
     try:
         res = s.query(alert['query'], _from=alert.get('earliest_time', '-1m'), _to=alert.get('latest_time', 'now'))
     except Exception, e:
-        logger.exception("Unable to query: %s" % (e))
+        logger.exception("Unable to query from worker - alert: %s,  reason: %s" % (alert['name'], e))
         return
+
+    if not res: return
 
     ## For aggregated results
     if res['intentions']['qd'].has_key('agg_type'):
