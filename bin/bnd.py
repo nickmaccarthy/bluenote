@@ -30,7 +30,7 @@ from bn import bncfg
 from bn_mail import mailcfg
 
 try:
-    es = Elasticsearch(bncfg['esh_server'], timeout=0.1)
+    es = Elasticsearch(bncfg['esh_server'])
 except Exception, e:
     logger.exception("Unable to connect to ES server! Reason: %s" % (e))
     sys.exit()
