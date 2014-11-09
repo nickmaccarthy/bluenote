@@ -17,6 +17,7 @@ def bnd(es, alert):
 
     nag_threshold = bluenote.relative_time_to_seconds( bluenote._get(alert, 0, 'alert', 'threshold') )
 
+    logger.info('last run for %s was %s' % ( alert['name'], bluenote.alert.last_run(es, alert['name'])))
     if bluenote.alert.last_run(es, alert['name']) > 0:
         time_since = ( bluenote.get_current_time_local() - bluenote.alert.last_run(es, alert['name']))
         if time_since <= nag_threshold: 
@@ -47,9 +48,16 @@ def bnd(es, alert):
 
     else:
     ## For just a standard result set
+        logger.info('foobarbaz')
         alert_results = bluenote.filter.result_set(res)
+    
+        alert_len = len(alert_results['_results'])
+        opr = bluenote.filter.get_operator(alert['alert']['relation'])
+        qty = alert['alert']['qty']
         
-        if len(alert_results['_results']) > 0:
+        logger.info('our operator for %s is %s with a result-len of %s' % (alert['name'], opr, alert_len))
+         
+        if opr(alert_len, qty):
             should_alert = True
 
     if should_alert:
@@ -59,6 +67,9 @@ def bnd(es, alert):
             if email_it:
                 logger.info("""msg="%s", email_to="%s", name="%s", subject="%s" """ % ( "Email Sent", alert['alert']['action']['email_to'], alert['name'], email_subject ))
                 es.index(index='bluenote-int', doc_type='alert_trigger', id=alert['name'], body={'alert-name': alert['name'], 'time': bluenote.get_current_utc(), 'results': alert_results})
+                
+                # log the alert for auditing purposes
+                es.index(index='bluenote-int', doc_type='alert-fired', body={'alert-name': alert['name'], 'time': bluenote.get_current_utc(), 'results': alert_results})
 
                 SCRIPT_DIRS = bluenote.get_bindirs(BN_HOME)
 
