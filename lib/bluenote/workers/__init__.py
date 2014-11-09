@@ -48,15 +48,12 @@ def bnd(es, alert):
 
     else:
     ## For just a standard result set
-        logger.info('foobarbaz')
         alert_results = bluenote.filter.result_set(res)
     
         alert_len = len(alert_results['_results'])
         opr = bluenote.filter.get_operator(alert['alert']['relation'])
         qty = alert['alert']['qty']
         
-        logger.info('our operator for %s is %s with a result-len of %s' % (alert['name'], opr, alert_len))
-         
         if opr(alert_len, qty):
             should_alert = True
 
