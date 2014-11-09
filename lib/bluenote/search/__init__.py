@@ -19,7 +19,7 @@ class Search(object):
 
 
     def __init__(self):
-       self.es = Elasticsearch(bncfg['esh_server'], timeout=1)
+       self.es = Elasticsearch(bncfg['esh_server'])
        self.set_indexes() 
 
 
