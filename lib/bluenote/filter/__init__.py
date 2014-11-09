@@ -40,11 +40,30 @@ def result_set(results):
     retd['_results'] = mres 
     return retd
 
+''' 
+    Sets an operator object for our shorthand operator syntax
+'''
+def get_operator(op):
+    
+    if not op: return None
+
+    if "ge" in op:
+        opr = operator.__ge__
+    elif "gt" in op:
+        opr = operator.__gt__
+    elif "le" in op:
+        opr = operator.__le__
+    elif "eq" in op:
+        opr = operator.eq
+
+    return opr
+    
 def meets_threshold(results, threshold):
     m = re.match("(?P<intended_operator>\w+) (?P<measure>\d+)$", threshold)
     intended_operator = m.group("intended_operator")
     measure = int(m.group("measure"))
 
+    # Todo, switch this to use the 'get_operator' def
     if "ge" in intended_operator:
         op = operator.__ge__ 
     elif "gt" in intended_operator:
