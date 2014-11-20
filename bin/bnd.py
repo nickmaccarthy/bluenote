@@ -13,7 +13,7 @@ from pprint import pprint
 BN_HOME = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
 os.environ['BN_HOME'] = str(BN_HOME)
 
-activate_this = os.path.join(BN_HHOME, 'env', 'bin', 'activate_this.py')
+activate_this = os.path.join(BN_HOME, 'env', 'bin', 'activate_this.py')
 execfile(activate_this, dict(__file__=activate_this))
 
 sys.path.append(os.path.join(BN_HOME, 'lib'))
