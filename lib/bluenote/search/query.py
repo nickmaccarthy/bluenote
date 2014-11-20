@@ -142,11 +142,11 @@ class Query(object):
             exclude = exclude
                   
         self.queryd['es_query'] = {
-            "partial_fields": {
-                "partial": {
-                    "include": qd['fields']
-                }
-            },   
+            #"partial_fields": {
+            #    "partial": {
+            #        "include": qd['fields']
+            #    }
+            #},   
             "query": {
                 "filtered": {
                     "filter": {
