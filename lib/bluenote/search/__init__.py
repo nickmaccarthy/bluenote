@@ -8,6 +8,7 @@ from dateutil.relativedelta import relativedelta
 from elasticsearch import Elasticsearch
 import bluenote
 from bluenote.search.query import Query
+import bluenote.result
 import re
 import json
 
@@ -39,11 +40,12 @@ class Search(object):
         index = qargs.get('index', 'logstash')
         index = index.strip('*')
         filters = qargs.get('filters', '')
+        exclude = qargs.get('exclude', None)
 
         search_indexes = self.find_indexes((self.format_relative_time(_from), self.format_relative_time(_to)), index)
         search_indexes = ''.join(search_indexes)
 
-        qobj = Query(query, index, _from, _to)
+        qobj = Query(query, index, _from, _to, exclude)
 
         lucene_query = None
         if qobj.queryd['lucene']:
@@ -59,11 +61,11 @@ class Search(object):
                                     timeout="10"
                                 )
         except Exception, e:
-            #print "Unable to run query from search module: %s" % e
             logger.exception('Unable to run query from search module: %s' % (e))
             raise 
 
-        return returnd
+        return bluenote.result._set(returnd)
+        #return returnd
 
     def find_indexes(self, times, index):
         start,end = times
@@ -105,7 +107,7 @@ class Search(object):
                 interval = int(interval.lstrip('-'))
                 period = m.group('period')
         except Exception, e:
-            print "unable to parse relative time string: %s" % e
+            logger.exception("unable to parse relative time string: %s" % (e,))
             return
 
         if 's' in period:

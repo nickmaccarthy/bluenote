@@ -176,6 +176,9 @@ def flatten_dict(d, lkey='', sep='.'):
         key = lkey+rkey
         if isinstance(val, dict):
             ret.update(flatten_dict(val, key+sep))
+        #elif isinstance(val, list):
+        #    for i in val:
+        #        ret.update(flatten_dict(i, key+sep))
         else:
             ret[key] = val
     return ret
