@@ -135,7 +135,12 @@ class Query(object):
        
         self.queryd = {}
         self.queryd['lucene'] = qd['query_opts']['args']
-              
+        
+        if exclude is None:
+            exclude = ''
+        else:
+            exclude = exclude
+                  
         self.queryd['es_query'] = {
             "partial_fields": {
                 "partial": {

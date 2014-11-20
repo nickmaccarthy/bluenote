@@ -4,7 +4,6 @@ import bluenote.filter
 
 def _set(results):
     intentions = results['intentions']
-    pprint(intentions)
     rset = []
     
     if intentions['qd']['agg_type']:

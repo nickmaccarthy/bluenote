@@ -2,7 +2,6 @@
 *.pyc
 *.json
 *.yaml
-*.txt
 *.swp
 
 etc/conf/*.py

@@ -31,8 +31,9 @@ s = Search()
 
 our_query = sys.argv[1]
 try:
-    #res = s.query("index=logstash* _type=mysql_processlist_stats | date_histogram avg:avg_query_time by host interval=30s", _from="-1m", _to="now")
-    res = s.query(our_query, _from="-1m", _to="now")
+    res = s.query("index:logstash* _type:mysql_status | date_histogram avg:Threads_running by host interval=1m | fields host,@timestamp,mysql_status.Threads*", _from="-1m", _to="now")
+    #res = s.query("index:logstash* _type:mysql_status", _from="-1m", _to="now")
+    #res = s.query(our_query, _from="-1m", _to="now")
     pprint(res)
 except Exception, e:
     print "Unable to query: %s" % e
