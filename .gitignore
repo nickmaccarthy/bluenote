@@ -3,9 +3,10 @@
 *.json
 *.yaml
 *.txt
-*.sw*
+*.swp
 
 etc/conf/*.py
 /etc/conf/*backup
 /etc/conf/*.yaml
 /etc/conf/*.main
+env/*

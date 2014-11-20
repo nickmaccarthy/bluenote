@@ -15,13 +15,13 @@ from pprint import pprint
 class Query(object):
 
 
-    def __init__(self, query, index='logstash*', start=None, end=None):
+    def __init__(self, query, index='logstash*', start=None, end=None, exclude=None):
         if start is not None or end is not None:
             self.times = self.create_time(start, end)
         self.index = index
         self.query_raw = query
         self.qd = self.get_intentions(self.query_raw)
-        self.build_es_query(self.qd, self.times)
+        self.build_es_query(self.qd, self.times, exclude)
 
 
     def create_time(self, start, end):
@@ -77,11 +77,28 @@ class Query(object):
                 qd['agg_type'] = 'date_histogram'
                 qd['agg_opts'] = {}
                 qd['agg_opts'] = self.build_date_histogram(  bluenote.find_in_list('date_histogram', query_parts))
+            if bluenote.find_in_list('fields', query_parts):
+                qd['fields'] = self.build_fields(bluenote.find_in_list('fields', query_parts)) 
+                
         else:
             qd['query_opts'] = self.build_main_query(query_base)
+            qd['fields'] = ['*'] 
 
         return qd
 
+    def build_fields(self, string):
+        field_str = None
+        if re.match("fields (.*?)", string):
+            field_match = re.search("fields (.*?)$", string)
+            if field_match.group(1):
+                field_str = field_match.group(1)
+
+        if field_str:
+            fields = [ x.strip() for x in field_str.split(',') ]
+
+            return fields
+
+        return ['*']
 
     def build_date_histogram(self, string):
         parts = string.split(" ")
@@ -111,16 +128,20 @@ class Query(object):
         return { '_type': _type, 'index': index, 'args': lquery }
         
 
-    def build_es_query(self, qd, times):
+    def build_es_query(self, qd, times, exclude):
   
         _from = bluenote.epoch2iso(times['start'])
         _to = bluenote.epoch2iso(times['end'])
        
         self.queryd = {}
         self.queryd['lucene'] = qd['query_opts']['args']
-
               
         self.queryd['es_query'] = {
+            "partial_fields": {
+                "partial": {
+                    "include": qd['fields']
+                }
+            },   
             "query": {
                 "filtered": {
                     "filter": {
@@ -129,9 +150,6 @@ class Query(object):
                                 {   
                                     "range": { 
                                         "@timestamp": { "from": times['start_datemath'], "to": times['end_datemath'] }
-                                        #"@timestamp": { "from": _from, "to": _to }
-                                        #"@timestamp": { "from": "now-1m", "to": "now" }
-                                        #"@timestamp": { "from": times['start'], "to": times['end'] }
                                     }
                                 },
                                 {
@@ -141,7 +159,14 @@ class Query(object):
                                         }
                                     }
                                 }
-                            ] 
+                            ],
+                            "must_not": {
+                                "query": {
+                                    "query_string": {
+                                        "query": exclude
+                                    }
+                                }
+                            }
                         }
                     }
                 }
@@ -151,6 +176,7 @@ class Query(object):
         if bluenote._get(qd, '', 'agg_type') == 'date_histogram': 
             self.queryd['es_query'].update( 
             {
+                "size": 0,
                 "aggs": {
                     "events_by_%s" % qd['agg_opts']['by']: {
                         "terms": { 
@@ -174,21 +200,7 @@ class Query(object):
                     }
                 }
             })
-        #else:
-        #    # Makes a standard query
-        #    self.queryd['es_query'] = {
-        #        "query": {
-        #            "bool": {
-        #                "must": [
-        #                    {   
-        #                        "range": { 
-        #                            "@timestamp": { "from": _from, "to": _to }
-        #                        }
-        #                    },
-        #                ] 
-        #            }
-        #        }
-        #    }
 
+        
 if __name__ == "__main__":
     q = Query("index=logstash* _type:system_stats | date_histogram avg:current_load by host interval=30s")

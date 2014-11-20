@@ -25,7 +25,7 @@ def bnd(es, alert):
             return
 
     try:
-        res = s.query(alert['query'], _from=alert.get('earliest_time', '-1m'), _to=alert.get('latest_time', 'now'))
+        res = s.query(alert['query'], exclude=alert.get('exclude', None),  _from=alert.get('earliest_time', '-1m'), _to=alert.get('latest_time', 'now'))
     except Exception, e:
         logger.exception("Unable to query from worker - alert: %s,  reason: %s" % (alert['name'], e))
         return
