@@ -3,6 +3,10 @@ import bluenote
 import bluenote.filter
 
 def _set(results):
+    # disabling this for now
+    return results
+
+
     intentions = results['intentions']
     rset = []
     
