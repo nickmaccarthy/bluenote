@@ -17,7 +17,7 @@ def bnd(es, alert):
 
     nag_threshold = bluenote.relative_time_to_seconds( bluenote._get(alert, 0, 'alert', 'threshold') )
 
-    logger.info('last run for %s was %s' % ( alert['name'], bluenote.alert.last_run(es, alert['name'])))
+    logger.info('last alert for %s was %s' % ( alert['name'], bluenote.epoch2iso(bluenote.alert.last_run(es, alert['name']))))
     if bluenote.alert.last_run(es, alert['name']) > 0:
         time_since = ( bluenote.get_current_time_local() - bluenote.alert.last_run(es, alert['name']))
         if time_since <= nag_threshold: 
