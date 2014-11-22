@@ -18,7 +18,7 @@ class logger(object):
         if self.logger.handlers:
             self.logger.handlers = []
 
-        handler = logging_handler.RotatingFileHandler(LOG_FILENAME, maxBytes=102400, backupCount=5)
+        handler = logging_handler.RotatingFileHandler(LOG_FILENAME, maxBytes=10002400, backupCount=5)
         log_format = logging.Formatter("%(asctime)s [%(levelname)-s] - [%(name)s] - [%(module)s] - %(message)s")
         handler.setFormatter(log_format)
         self.logger.addHandler(handler)
