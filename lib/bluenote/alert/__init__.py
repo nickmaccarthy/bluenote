@@ -68,6 +68,29 @@ def email(to, results, alert_name, **kwargs):
 
     return True
 
+def email_basic(to, subject, body, **kwargs):
+    if not isinstance(to, list):
+        to = [to]
+
+    sender = kwargs.get('sender', mailcfg['default_sender'])
+    subject = kwargs.get('subject', subject)
+
+    email_body = body
+
+    msg = MIMEText(email_body, 'html')
+    msg['Subject'] = subject
+    msg['From'] = sender
+    msg['To'] = ','.join(to)
+
+    try:
+        server = smtplib.SMTP(mailcfg['server'])
+        server.sendmail(sender, to, msg.as_string())
+        server.quit()
+    except Exception, e:
+        logger.exception("Unable to send email: %s" % e )
+
+    return True
+
 '''
     gets the previous run for an alert
 '''
