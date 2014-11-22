@@ -185,14 +185,19 @@ def flatten_dict(d, lkey='', sep='.'):
 
 
 def run_script(script_name, std_in):
-    
+    logger = get_logger('run-script')
+       
     script_bins = [ os.path.join(os.environ["BN_HOME"], 'bin', 'scripts') ]
 
     for bin_dir in script_bins:
         full_path = os.path.join(bin_dir, script_name)
 
-        proc = subprocess.Popen(full_path, stdin=subprocess.PIPE)
-        proc.stdin.write(json.dumps(std_in['_results']))
+        logger.info("will now run script: %s" % (full_path))
+        try:
+            proc = subprocess.Popen(full_path, stdin=subprocess.PIPE)
+            proc.stdin.write(json.dumps(std_in['_results']))
+        except Exception, e:
+            logger.exception("Unable to run script.  Reason: %s" % (e))
 
 '''
     Loads a python module from a file, and returns it if it has a main() method
@@ -248,4 +253,11 @@ def get_apps(PATH):
 def castem(e):
     return e
 
+def get_hostname():
+    import commands
+    return commands.getoutput("hostname -s")
 
+def pprint(obj):
+    import pprint
+    pp = pprint.PrettyPrinter(indent=4)
+    return pp.pprint(obj)
