@@ -51,7 +51,10 @@ q = Queue.Queue()
 def worker(q, alert):
     workit = bluenote.workers.bnd(es, alert)
     q.task_done()
-    q.get()
+    try:
+        q.get(timeout=2)
+    except Exception, e:
+        logger.exception('Queue timeout when getting thread: %s, alert: %s ' % (e, alert))       
 
 
 def main():
@@ -60,10 +63,10 @@ def main():
 
     for alert in alerts:
         t = threading.Thread(target=worker, args=(q, alert))
-        #t.daemon = True
         t.start()
         logger.info('starting search for %s' % (alert['name']))
-    q.join()        
+
+    q.join() 
 
 
 if __name__ == "__main__":
