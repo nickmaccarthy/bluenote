@@ -26,10 +26,15 @@ logger = bluenote.get_logger('alert')
 
 def make_email_body(results, ainfo):
     try:
+        if len(results['_results']) > 0:
+            results_table = bluenote.dict_to_html_table(results.get('_results', ''))
+        else:
+            results_table = "No results found"
+
         email_body = requests.post('http://localhost:5000/render/email', data={
                                                                             'ainfo': json.dumps(ainfo), 
                                                                             'results': json.dumps(results), 
-                                                                            'results_table': bluenote.dict_to_html_table(results.get('_results', '')) 
+                                                                            'results_table':  results_table 
                                                                         }
                                     ).text
         return email_body
@@ -43,10 +48,9 @@ def find_in_alerts(search_id):
             return al
 
 def email(to, results, alert_name, **kwargs):
-
     if not isinstance(to, list):
         to = [to]
-    
+
     ainfo = find_in_alerts(alert_name)
 
     sender = kwargs.get('sender', mailcfg['default_sender'])
