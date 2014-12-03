@@ -4,6 +4,7 @@ import bluenote.filter
 
 def _set(results):
     # disabling this for now
+    #bluenote.pprint(results)
     return results
 
 
