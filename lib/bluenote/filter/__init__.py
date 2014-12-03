@@ -38,13 +38,13 @@ def result_set(results):
     for r in results['_results']['hits']['hits']:
         mres.append(bluenote.flatten_dict(r))
     retd['_results'] = mres 
+    bluenote.pprint(retd)
     return retd
 
 ''' 
     Sets an operator object for our shorthand operator syntax
 '''
 def get_operator(op):
-    
     if not op: return None
 
     if "ge" in op:
@@ -53,6 +53,8 @@ def get_operator(op):
         opr = operator.__gt__
     elif "le" in op:
         opr = operator.__le__
+    elif "lt" in op:
+        opr = operator.__lt__
     elif "eq" in op:
         opr = operator.eq
 
@@ -63,15 +65,7 @@ def meets_threshold(results, threshold):
     intended_operator = m.group("intended_operator")
     measure = int(m.group("measure"))
 
-    # Todo, switch this to use the 'get_operator' def
-    if "ge" in intended_operator:
-        op = operator.__ge__ 
-    elif "gt" in intended_operator:
-        op = operator.__gt__
-    elif "le" in intended_operator:
-        op = operator.__le__
-    elif "eq" in intended_operator:
-        op = operator.eq
+    op = get_operator(inteded_operator)
 
     returnd = {}
     returnd['query_intentions'] = results['query_intentions']
