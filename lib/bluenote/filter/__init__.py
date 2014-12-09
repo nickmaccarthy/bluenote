@@ -38,7 +38,6 @@ def result_set(results):
     for r in results['_results']['hits']['hits']:
         mres.append(bluenote.flatten_dict(r))
     retd['_results'] = mres 
-    bluenote.pprint(retd)
     return retd
 
 ''' 
