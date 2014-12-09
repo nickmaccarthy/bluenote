@@ -141,12 +141,8 @@ class Query(object):
         else:
             exclude = exclude
                   
+
         self.queryd['es_query'] = {
-            #"partial_fields": {
-            #    "partial": {
-            #        "include": qd['fields']
-            #    }
-            #},   
             "query": {
                 "filtered": {
                     "filter": {
@@ -178,6 +174,15 @@ class Query(object):
             }
         }
 
+        # Filter our only fields we want to see
+        if qd['fields'] is not None:
+            print qd['fields']
+            self.queryd['es_query'].update(
+            {
+                "_source": {
+                    "include": qd['fields'],
+                }
+            })
         if bluenote._get(qd, '', 'agg_type') == 'date_histogram': 
             self.queryd['es_query'].update( 
             {
