@@ -1,12 +1,11 @@
 from pprint import pprint 
 import bluenote
 import bluenote.filter
+import pandas as pd
+import sys
 
 def _set(results):
-    # disabling this for now
-    #bluenote.pprint(results)
     return results
-
 
     intentions = results['intentions']
     rset = []
