@@ -50,7 +50,8 @@ def get_confs(PATH):
 
 ''' returns back a unix timestamp to a ISO format '''
 def epoch2iso(epoch_ts):
-    return datetime.datetime.fromtimestamp(float(epoch_ts)).strftime("%Y-%m-%dT%H:%M:%S.%f%Z")
+    if epoch_ts is not None:
+        return datetime.datetime.fromtimestamp(float(epoch_ts)).strftime("%Y-%m-%dT%H:%M:%S.%f%Z")
 
 
 def clean_keys(string): 
