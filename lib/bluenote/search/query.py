@@ -122,6 +122,8 @@ class Query(object):
         if '_type' in lquery:
             m = re.search('_type:(.*?)\s*', lquery)
             _type = m.group(0)
+        else:
+            _type = None
 
         index = self.index.strip('*')
 
@@ -175,7 +177,7 @@ class Query(object):
         }
 
         # Filter our only fields we want to see
-        if qd['fields'] is not None:
+        if qd.get('fields') is not None:
             print qd['fields']
             self.queryd['es_query'].update(
             {
