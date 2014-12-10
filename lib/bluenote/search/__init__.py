@@ -65,7 +65,6 @@ class Search(object):
             raise 
 
         return bluenote.result._set(returnd)
-        #return returnd
 
     def find_indexes(self, times, index):
         start,end = times
