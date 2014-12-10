@@ -62,59 +62,64 @@ def clean_keys(string):
 
 ''' returns a list of dicts into a html table '''
 def dict_to_html_table(ourl):
-    headers = ourl[0].keys()
+    try:
+        headers = ourl[0].keys()
 
-    table = []
-    theaders = []
-    for h in headers:
-        theaders.append("<th>%s</th>" % h)
+        table = []
+        theaders = []
+        for h in headers:
+            theaders.append("<th>%s</th>" % h)
 
-    table.append("<table border='1' cellpadding='1' cellspacing='1'>")
-    table.append("<thead>")
-    table.append("<tr>")
-    for h in headers:
-        table.append("<th>%s</th>" % h)
-    table.append("</tr>")
-    table.append("</thead>")
-
-    table.append("<tbody>")
-    tblst = []
-    for l in ourl:
+        table.append("<table border='1' cellpadding='1' cellspacing='1'>")
+        table.append("<thead>")
         table.append("<tr>")
         for h in headers:
-            table.append("<td> %s </td>" % (str(l[h])))
+            table.append("<th>%s</th>" % h)
         table.append("</tr>")
-    table.append("</tbody>")
-    table.append("</table>")
+        table.append("</thead>")
 
-    return ''.join(table)
+        table.append("<tbody>")
+        tblst = []
+        for l in ourl:
+            table.append("<tr>")
+            for h in headers:
+                table.append("<td> %s </td>" % (str(l[h])))
+            table.append("</tr>")
+        table.append("</tbody>")
+        table.append("</table>")
+
+        return ''.join(table)
+    except:
+        return "<p>No results found.</p>"
 
 
 def datatable(ourl):
-    theaders = ourl['_results'][0].keys()
-
-    table = []
-    table.append('<table id="datatable" class="table table-striped table-bordered table-hover dataTable no-footer">')
-    table.append('<thead>')
-    table.append('<tr>')
-    for h in theaders:
-        table.append("<th>%s</th>" % h)
-    table.append("</tr>")
-    table.append("</thead>")
-
-    table.append("<tbody>")
-    tblst = []
-    for l in ourl['_results']:
-        print "L: %s" % l
-        table.append("<tr>")
+    print ourl
+    try:
+        theaders = ourl['_results'][0].keys()
+        table = []
+        table.append('<table id="datatable" class="table table-striped table-bordered table-hover dataTable no-footer">')
+        table.append('<thead>')
+        table.append('<tr>')
         for h in theaders:
-            table.append("<td> %s </td>" % (str(l[h])))
+            table.append("<th>%s</th>" % h)
         table.append("</tr>")
-    table.append("</tbody>")
-    table.append("</table>")
+        table.append("</thead>")
 
-    
-    htmltable =  ''.join(table)
+        table.append("<tbody>")
+        tblst = []
+        for l in ourl['_results']:
+            table.append("<tr>")
+            for h in theaders:
+                table.append("<td> %s </td>" % (str(l[h])))
+            table.append("</tr>")
+        table.append("</tbody>")
+        table.append("</table>")
+        htmltable =  ''.join(table)
+    except:
+        theaders = ['Results']
+        htmltable = '<p>No results found</p>'
+
     return { 'query_intentions': ourl.get('query_intentions'), 'theaders': theaders, 'html': htmltable}    
 
 ''' returns a logger instance
