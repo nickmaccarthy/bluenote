@@ -64,7 +64,7 @@ def meets_threshold(results, threshold):
     intended_operator = m.group("intended_operator")
     measure = int(m.group("measure"))
 
-    op = get_operator(inteded_operator)
+    op = get_operator(intended_operator)
 
     returnd = {}
     returnd['query_intentions'] = results['query_intentions']
