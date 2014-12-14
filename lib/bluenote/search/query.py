@@ -178,7 +178,6 @@ class Query(object):
 
         # Filter our only fields we want to see
         if qd.get('fields') is not None:
-            print qd['fields']
             self.queryd['es_query'].update(
             {
                 "_source": {
