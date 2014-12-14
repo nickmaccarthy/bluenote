@@ -39,8 +39,10 @@ def make_email_body(results, ainfo):
                                     ).text
         return email_body
     except Exception, e:
-        log_msg = "Unable to make request to render email template: %s" % e
+        log_msg = "Unable to make request to render email template. <br /><b>Reason: </b>%s<br />Is the bnweb service up?<br />" % e
         logger.exception(log_msg)
+        email_body = log_msg
+        return email_body
 
 def find_in_alerts(search_id):
     for al in alerts:
