@@ -33,17 +33,28 @@ class Search(object):
                 self.time_indexes.append(self.time_index(i))
             self.indexes.append(i)
 
+    
+    def get_index(self, query, qargs):
+        if qargs.get('index'):
+            return qargs.get('index')
+        elif 'index' in query:
+            m = re.search('index:(.*?)\s', query)
+            if m:
+                return m.group(1)
+        else:
+            return 'logstash*'
+        
    
     def query(self, query, **qargs):
         _from = qargs.get('_from', '-1m')
         _to = qargs.get('_to', 'now')
-        index = qargs.get('index', 'logstash')
+        index = self.get_index(query, qargs)
         index = index.strip('*')
         filters = qargs.get('filters', '')
         exclude = qargs.get('exclude', None)
 
         search_indexes = self.find_indexes((self.format_relative_time(_from), self.format_relative_time(_to)), index)
-        search_indexes = ''.join(search_indexes)
+        search_indexes = [''.join(search_indexes)]
 
         qobj = Query(query, index, _from, _to, exclude)
 
@@ -139,8 +150,9 @@ class Search(object):
 
     
     def time_index(self,i):
-        if "-" in i:
-            index_name, date = i.split('-')
+        if re.match(".*?-\d{1,4}\.\d{1,2}\.\d{1,2}", i):
+            match = re.split('(.*?)-(\d{1,4}\.\d{1,2}\.\d{1,2})', i)
+            index_name, date = match[1], match[2]
             if re.match("\d{1,4}\.\d{1,2}\.\d{1,2}", date):
                 period = {i:self.make_timeperiod(date)}
                 return period
