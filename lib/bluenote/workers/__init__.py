@@ -1,5 +1,6 @@
 import sys
 import os
+import datetime
 import bluenote
 from bluenote.search import Search
 from bluenote.search.query import Query
@@ -58,15 +59,16 @@ def bnd(es, alert):
             should_alert = True
 
     if should_alert:
+            # update the alert_triggers
+            es.index(index='bluenote-int', doc_type='alert_trigger', id=alert['name'], body={'alert-name': alert['name'], '@timestamp': datetime.datetime.utcnow(), 'time': bluenote.get_current_utc(), 'results': alert_results})
+            # log the alert in bluenote-int
+            es.index(index='bluenote-int', doc_type='alert-fired', id=bluenote.md5hash("{0}{1}".format(alert['name'], bluenote.get_current_utc())), body={'alert-name': alert['name'], '@timestamp': datetime.datetime.utcnow(), 'time_unix': bluenote.get_current_utc(), 'alert-results': alert_results})
+
             email_subject = 'Bluenote Alert: {0}'.format(alert['name'])
             email_it = bluenote.alert.email( alert['alert']['action']['email_to'], alert_results, alert['name'], subject=email_subject ) 
             email_it = True
             if email_it:
                 logger.info("""msg="{0}", email_to="{1}", name="{2}", subject="{3}" """.format( "Email Sent", alert['alert']['action']['email_to'], alert['name'], email_subject ))
-                es.index(index='bluenote-int', doc_type='alert_trigger', id=alert['name'], body={'alert-name': alert['name'], 'time': bluenote.get_current_utc(), 'results': alert_results})
-                
-                # log the alert for auditing purposes
-                es.index(index='bluenote-int', doc_type='alert-fired', id="{0}{1}".format(alert['name'], bluenote.get_current_utc()), body={'alert-name': alert['name'], 'time': bluenote.get_current_utc(), 'results': alert_results})
 
                 SCRIPT_DIRS = bluenote.get_bindirs(BN_HOME)
 
