@@ -101,7 +101,7 @@ def email_basic(to, subject, body, **kwargs):
     gets the previous run for an alert
 '''
 def last_run(es, alert_name):
-    res = es.search(index='bluenote-int', doc_type='alert_trigger', q='alert-name:%s' % (alert_name))
+    res = es.search(index='bluenote-int', doc_type='alert_trigger', q='alert-name:%s' % (alert_name), sort='time:desc')
     if res:
         for h in res['hits']['hits']:
             return float(h['_source']['time'])
