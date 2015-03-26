@@ -12,6 +12,9 @@ import json
 
 from pprint import pprint
 
+class QueryException(Exception):
+    pass
+
 class Query(object):
 
 
@@ -77,6 +80,10 @@ class Query(object):
                 qd['agg_type'] = 'date_histogram'
                 qd['agg_opts'] = {}
                 qd['agg_opts'] = self.build_date_histogram(  bluenote.find_in_list('date_histogram', query_parts))
+            if bluenote.find_in_list('terms', query_parts):
+                qd['agg_type'] = 'terms'
+                qd['agg_opts'] = {}
+                qd['agg_opts'] = self.build_terms(bluenote.find_in_list('terms', query_parts))
             if bluenote.find_in_list('fields', query_parts):
                 qd['fields'] = self.build_fields(bluenote.find_in_list('fields', query_parts)) 
                 
@@ -116,7 +123,32 @@ class Query(object):
                 k,v = part.split("=")
                 args[k] = v
 
-        return { 'args': args, 'agg_type': module, 'agg_field': bluenote.clean_keys(field), 'by': by }  
+        thed = { 'args': args, 'agg_type': module, 'agg_field': bluenote.clean_keys(field), 'by': by }  
+        return thed
+
+    def build_terms(self, string):
+        parts = string.split(" ")
+        args = {}
+        for part in parts:
+            if ":" in part:
+                key, val = part.split(":")
+                args[key] = val
+            elif "=" in part:
+                k,v = part.split("=")
+                args[k] = v
+
+            
+        term_field = args.get('field')
+        if not term_field:
+            raise QueryException('Unable to define term field.  This is a required')
+            return None
+        
+        term_size = args.get('size', 5)
+        term_orderby = args.get('order_by', '_count')
+        term_direction = args.get('sort', 'desc') 
+
+        thed = { 'args': args, 'agg_type': 'terms', 'by': args.get('field'), 'size': term_size, 'order_by': { 'field': term_orderby, 'direction': term_direction }}  
+        return thed
 
     def build_main_query(self, lquery):
         if '_type' in lquery:
@@ -207,6 +239,23 @@ class Query(object):
                                     }
                                 }
                             }
+                        }
+                    }
+                }
+            })
+        if bluenote._get(qd, '', 'agg_type') == 'terms':
+            self.queryd['es_query'].update(
+            {
+                "size": 0,
+                "aggs": {
+                    "events_by_%s" % qd['agg_opts']['by']: {
+                        "terms": {
+                            "field": qd['agg_opts']['by'],
+                            "size": qd['agg_opts']['size'],
+                            "order": {
+                                qd['agg_opts']['order_by']['field']: qd['agg_opts']['order_by']['direction']
+                            }
+
                         }
                     }
                 }
