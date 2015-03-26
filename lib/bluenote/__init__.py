@@ -55,7 +55,7 @@ def epoch2iso(epoch_ts):
 
 
 def clean_keys(string): 
-    escape_these = ',.\=\n\r\\'
+    escape_these = ',\=\n\r\\'
     for char in escape_these:
         string = string.replace(char, '__')
     return string
@@ -267,3 +267,17 @@ def pprint(obj):
     import pprint
     pp = pprint.PrettyPrinter(indent=4)
     return pp.pprint(obj)
+
+''' returns an md5 hash from a given input '''
+def md5hash(input):
+    import hashlib
+    if isinstance(input, tuple):
+        input = str(''.join(map(str,input)))
+    input = str(input)
+    m = hashlib.md5()
+    m.update(input)
+    return m.hexdigest()
+
+''' alias to md5hash '''
+def make_md5(input):
+    return md5hash(input)
