@@ -34,12 +34,13 @@ def _set(results):
 
 
 def get_aggs(res):
-    
     intentions = res['intentions']
     agg_type = intentions['qd']['agg_type']
 
     if 'date_histogram' in agg_type:
         retres = bluenote.filter.date_histogram(res)
+    #if 'terms' in agg_type:
+    #    retres = bluenote.filter.terms(res)
 
 
     results = retres['_results']
