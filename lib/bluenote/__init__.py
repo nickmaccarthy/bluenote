@@ -62,6 +62,7 @@ def clean_keys(string):
 
 ''' returns a list of dicts into a html table '''
 def dict_to_html_table(ourl):
+    #print "List: {0}".format(ourl)
     try:
         headers = ourl[0].keys()
 
@@ -89,8 +90,8 @@ def dict_to_html_table(ourl):
         table.append("</table>")
 
         return ''.join(table)
-    except:
-        return "<p>No results found.</p>"
+    except Exception, e:
+        return e
 
 
 def datatable(ourl):
@@ -281,3 +282,47 @@ def md5hash(input):
 ''' alias to md5hash '''
 def make_md5(input):
     return md5hash(input)
+
+
+'''
+    Normalized boolean variables for us
+'''
+def normalize_boolean(input):
+    true_things = [True, 'True', 't', '1', 1, 'yes', 'y', 'on']
+    false_things = [None, False, 'False', 'f', '0', 0, 'no', 'n', 'off']
+
+    def norm(input):
+        if input == True: return True
+        if input == False: return False
+
+        try:
+            test = input.strip().lower()
+        except:
+            return input
+
+        if test in true_things:
+            return True
+        elif test in false_things:
+            return False
+    return norm(input)
+
+
+def makecsvfromlist(lst, filename=None):
+    import csv
+    
+    if filename is None:
+        filename = 'no_filename_given'
+
+    filename_full = os.path.join(os.environ.get('BN_HOME'), 'tmp', "{0}.csv".format(filename))
+    
+    with open(filename_full, 'w+') as fh:
+        if len(lst) > 0:
+            headers = lst[0].keys()
+            writer = csv.DictWriter(fh, fieldnames=headers)
+            writer.writeheader()
+            for l in lst:
+                writer.writerow(l)
+        else:   
+            fh.write('No results')
+
+    return filename_full
