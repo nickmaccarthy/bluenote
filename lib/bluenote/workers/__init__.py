@@ -46,6 +46,16 @@ def bnd(es, alert):
                 alert_results = bluenote.filter.meets_threshold(results, threshold)
                 if len(alert_results['_results']) >= 1:
                     should_alert = True
+            if 'terms' in agg_intention:
+                alert_results = bluenote.filter.terms(res)
+                alert_len = len(alert_results['_results'])
+                opr = bluenote.filter.get_operator(alert['alert']['relation'])
+                qty = alert['alert']['qty']
+                
+                if opr(alert_len, qty):
+                    should_alert = True
+                    bluenote.pprint(alert_results['_results'])
+
 
     else:
     ## For just a standard result set
@@ -64,17 +74,18 @@ def bnd(es, alert):
             # log the alert in bluenote-int
             es.index(index='bluenote-int', doc_type='alert-fired', id=bluenote.md5hash("{0}{1}".format(alert['name'], bluenote.get_current_utc())), body={'alert-name': alert['name'], '@timestamp': datetime.datetime.utcnow(), 'time_unix': bluenote.get_current_utc(), 'alert-results': alert_results})
 
-            email_subject = 'Bluenote Alert: {0}'.format(alert['name'])
-            email_it = bluenote.alert.email( alert['alert']['action']['email_to'], alert_results, alert['name'], subject=email_subject ) 
-            email_it = True
-            if email_it:
-                logger.info("""msg="{0}", email_to="{1}", name="{2}", subject="{3}" """.format( "Email Sent", alert['alert']['action']['email_to'], alert['name'], email_subject ))
+            should_email = bluenote.normalize_boolean(alert['alert']['action']['email'])
+            if should_email:
+                email_subject = 'Bluenote Alert: {0}'.format(alert['name'])
+                email_it = bluenote.alert.email( alert['alert']['action']['email_to'], alert_results, alert['name'], subject=email_subject ) 
+                email_it = True
+                if email_it:
+                    logger.info("""msg="{0}", email_to="{1}", name="{2}", subject="{3}" """.format( "Email Sent", alert['alert']['action']['email_to'], alert['name'], email_subject ))
 
+            if alert['alert']['action'].has_key('script'):
                 SCRIPT_DIRS = bluenote.get_bindirs(BN_HOME)
-
-                if alert['alert']['action'].has_key('script'):
-                    print bluenote.run_script(alert['alert']['action']['script']['filename'], alert_results)
-                #elif alert['alert']['action'].has_key('pymod'):
-                #    print bluenote.run_
+                print bluenote.run_script(alert['alert']['action']['script']['filename'], alert_results)
+            #elif alert['alert']['action'].has_key('pymod'):
+            #    print bluenote.run_
 
     return True
