@@ -3,6 +3,7 @@
 *.json
 *.yaml
 *.swp
+*.swo
 
 etc/conf/*.py
 /etc/conf/*backup
