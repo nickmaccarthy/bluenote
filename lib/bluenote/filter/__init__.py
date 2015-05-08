@@ -31,6 +31,22 @@ def date_histogram(res):
     rd['query_intentions'] = intentions
     return rd
 
+def terms(res):
+    intentions = res['intentions']
+    events_by = 'events_by_%s' % intentions['qd']['agg_opts']['by']
+    agg_type = intentions['qd']['agg_opts']['agg_type']
+    agg_field = intentions['qd']['agg_opts']['by']
+    rd = {}
+    rd['_results'] = {}
+    for results in res['_results']['aggregations'][events_by]['buckets']:
+        mres = []
+        val_key = "%s_%s" % (agg_type, agg_field)
+        mres.append({'doc_count': results.get('doc_count'), 'key': results['key']})
+        
+    rd['_results'] = mres
+    rd['query_intentions'] = intentions
+    return rd
+
 def result_set(results):
     retd = {}
     retd['query_intentions'] = results['intentions']
