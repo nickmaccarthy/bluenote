@@ -69,7 +69,8 @@ class Search(object):
             returnd['_results'] = self.es.search(
                                     index=search_indexes, 
                                     body=qobj.queryd['es_query'],
-                                    timeout="10"
+                                    timeout="10",
+                                    size=10000
                                 )
         except Exception, e:
             logger.exception('Unable to run query from search module: %s' % (e))
@@ -82,11 +83,11 @@ class Search(object):
         start = datetime.datetime.fromtimestamp(start)
         end = datetime.datetime.fromtimestamp(end)
 
-        diff = abs((end - start).days)
+        diff = abs((end - start).days) + 1
       
         now = datetime.datetime.utcnow() 
         first_date = now - relativedelta(days=diff) 
-
+        
         search_indexes = []
         if diff > 0:
             for d in range(diff):
@@ -96,7 +97,7 @@ class Search(object):
         else:   
             search_indexes.append("%s-%s" % ( index, now.strftime("%Y.%m.%d")))
 
-        return search_indexes
+        return ','.join(search_indexes)
 
 
     '''
