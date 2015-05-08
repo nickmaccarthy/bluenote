@@ -72,6 +72,8 @@ class Query(object):
         else:
             query_base = query
 
+        query_base = re.sub('index:.*? ', '', query_base)
+
         if query_parts:
             query_parts = [ q.strip() for q in query_parts ]
             qd['query_opts'] = {}
@@ -158,7 +160,7 @@ class Query(object):
             _type = None
 
         index = self.index.strip('*')
-
+        
         return { '_type': _type, 'index': index, 'args': lquery }
         
 
@@ -261,6 +263,5 @@ class Query(object):
                 }
             })
 
-        
 if __name__ == "__main__":
     q = Query("index=logstash* _type:system_stats | date_histogram avg:current_load by host interval=30s")
