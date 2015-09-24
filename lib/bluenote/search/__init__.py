@@ -49,12 +49,17 @@ class Search(object):
         _from = qargs.get('_from', '-1m')
         _to = qargs.get('_to', 'now')
         index = self.get_index(query, qargs)
-        index = index.strip('*')
+
         filters = qargs.get('filters', '')
         exclude = qargs.get('exclude', None)
 
-        search_indexes = self.find_indexes((self.format_relative_time(_from), self.format_relative_time(_to)), index)
-        search_indexes = [''.join(search_indexes)]
+
+        if '*' in index:
+            index = index.strip('*')
+            search_indexes = self.find_indexes((self.format_relative_time(_from), self.format_relative_time(_to)), index)
+            search_indexes = [''.join(search_indexes)]
+        else:
+            search_indexes = [index]
 
         qobj = Query(query, index, _from, _to, exclude)
 
